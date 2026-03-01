@@ -199,14 +199,31 @@ def create_app():
         if red:
             return red
         
-        # Busca modelos disponíveis
-        mr = requests.get(f"{BACKEND_URL}/models", timeout=10)
-        models = [m["name"] for m in (mr.json().get("models", []) if mr.status_code == 200 else [])]
+        # Busca modelos disponíveis usando a função centralizada
+        models = get_models_list()
+        
+        # Tenta identificar o modelo corrente deste chat
+        current_model = None
+        try:
+            # Busca lista de chats para encontrar o modelo deste chat específico
+            cr = requests.get(f"{BACKEND_URL}/chats", headers=auth_headers(), timeout=10)
+            if cr.status_code == 200:
+                for c in (cr.json() or []):
+                    if int(c.get("id")) == int(chat_id):
+                        current_model = c.get("model")
+                        break
+        except Exception:
+            pass
+            
+        # Fallback para o primeiro modelo da lista se não houver um definido
+        if not current_model and models:
+            current_model = models[0]
         
         return render_template(
             "chat.html",
             chat_id=chat_id,
-            models=models or ["Qwen3-4B-Instruct-2507-4bit"],
+            models=models,
+            current_model=current_model,
             email=get_user_email()
         )
 
