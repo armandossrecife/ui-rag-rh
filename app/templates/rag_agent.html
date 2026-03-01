@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% block title %}Agente RH - Agente de RH com RAG{% endblock %}
+
+{% block content %}
+<div class="d-flex">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-brand d-flex align-items-center gap-2">
+            <div class="sidebar-brand-icon">
+                <i class="fas fa-robot"></i>
+            </div>
+            <span class="h5 fw-bold mb-0">MLX AI</span>
+        </div>
+        <ul class="sidebar-nav list-unstyled px-3">
+            <li class="mb-1">
+                <a href="{{ url_for('dashboard') }}" class="nav-link">
+                    <i class="bi bi-speedometer2"></i>
+                    <span class="ms-2">Dashboard</span>
+                </a>
+            </li>
+            <li class="mb-1">
+                <a href="{{ url_for('rag_agent_page') }}" class="nav-link active">
+                    <i class="bi bi-person-badge"></i>
+                    <span class="ms-2">Agente RH</span>
+                </a>
+            </li>
+            <li class="mb-1">
+                <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#newChatModal">
+                    <i class="bi bi-chat-dots"></i>
+                    <span class="ms-2">Novo Chat</span>
+                </a>
+            </li>
+            <li class="mb-1 mt-3">
+                <a href="{{ url_for('logout') }}" class="nav-link">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span class="ms-2">Sair</span>
+                </a>
+            </li>
+        </ul>
+        <div class="px-3 mt-4">
+            <div class="d-flex align-items-center gap-3 py-3 border-top border-secondary">
+                <div class="sidebar-brand-icon" style="width: 40px; height: 40px; font-size: 0.9rem; background: linear-gradient(135deg, #60a5fa, #3b82f6);">
+                    {{ email[0]|upper if email else 'U' }}
+                </div>
+                <div>
+                    <div class="fw-bold">{{ email }}</div>
+                    <div class="text-muted small">Usuário</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content flex-grow-1">
+        <div class="container-fluid">
+            <div class="mb-4">
+                <h1 class="h3 fw-bold">
+                    <i class="bi bi-person-badge me-2"></i>Agente de RH
+                </h1>
+                <p class="text-muted">Faça perguntas sobre políticas internas da empresa (férias, home office, código de conduta)</p>
+            </div>
+
+            <!-- RAG Status Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold mb-1">
+                                <i class="bi bi-database me-2"></i>Status da Base de Conhecimento
+                            </h6>
+                            <small class="text-muted" id="rag-status-text">Verificando indexação...</small>
+                        </div>
+                        <div>
+                            <span id="rag-status-badge" class="status-badge status-offline">
+                                <i class="fas fa-circle-notch fa-spin"></i> Verificando
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Container -->
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2 class="h4 fw-bold mb-1">🤖 Agente de RH</h2>
+                    <p class="mb-0 opacity-90">Especialista em políticas internas</p>
+                    <div class="chat-status">
+                        <span class="status-dot"></span>
+                        <span id="api-status" class="status-badge status-offline">
+                            <i class="fas fa-circle-notch fa-spin"></i> Verificando...
+                        </span>
+                    </div>
+                </div>
+
+                <div class="chat-body" id="chat-body">
+                    <div class="message bot-message">
+                        <div class="message-content">
+                            Olá! Sou o Agente de RH da empresa. Posso ajudar com dúvidas sobre:
+                            <ul class="mt-2 mb-0">
+                                <li>🏖️ Políticas de férias</li>
+                                <li>🏠 Home office e trabalho remoto</li>
+                                <li>📋 Código de conduta e ética</li>
+                            </ul>
+                            <p class="mt-2 mb-0">Faça sua pergunta abaixo!</p>
+                        </div>
+                        <span class="message-time">Sistema</span>
+                    </div>
+                    <div class="typing-indicator" id="typing-indicator">
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input">
+                    <!-- Category Filter -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small">
+                                <i class="bi bi-funnel me-1"></i>Categoria (Opcional)
+                            </label>
+                            <select class="form-select form-select-sm" id="category-select" style="border-radius: 8px;">
+                                <option value="">Todas as categorias</option>
+                                <option value="ferias">Férias</option>
+                                <option value="home_office">Home Office</option>
+                                <option value="conduta">Conduta</option>
+                                <option value="geral">Geral</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small">
+                                <i class="bi bi-sliders me-1"></i>Top K
+                            </label>
+                            <select class="form-select form-select-sm" id="topk-select" style="border-radius: 8px;">
+                                <option value="4">4 documentos</option>
+                                <option value="8" selected>8 documentos</option>
+                                <option value="12">12 documentos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small">
+                                <i class="bi bi-broadcast me-1"></i>Modo de Resposta
+                            </label>
+                            <div class="btn-group w-100" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-primary active" id="btn-stream-on">
+                                    <i class="bi bi-arrow-repeat"></i> Streaming
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="btn-stream-off">
+                                    <i class="bi bi-lightning"></i> Instantâneo
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input Area -->
+                    <div class="input-group">
+                        <textarea class="form-control input-field" id="prompt-input" 
+                                  placeholder="Ex: Quais são os requisitos para solicitar férias?" 
+                                  rows="2" style="resize: none;"></textarea>
+                        <button class="btn btn-primary" id="send-btn" type="button" style="background: var(--primary-gradient);">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <div class="text-muted small">
+                            <span class="me-3"><i class="bi bi-keyboard"></i> Shift+Enter para quebrar linha</span>
+                        </div>
+                        <div class="token-counter">
+                            <span id="sources-counter">Fontes: 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sources Panel (Hidden by default) -->
+            <div class="card border-0 shadow-sm mt-4" id="sources-panel" style="display: none;">
+                <div class="card-header bg-white">
+                    <h6 class="fw-bold mb-0">
+                        <i class="bi bi-book me-2"></i>Fontes Utilizadas
+                    </h6>
+                </div>
+                <div class="card-body" id="sources-content">
+                    <!-- Sources will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Modal Novo Chat -->
+<div class="modal fade" id="newChatModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Criar Novo Chat</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{{ url_for('create_chat') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Título do Chat (opcional)</label>
+                        <input class="form-control" name="title" placeholder="Ex: Análise de dados, Suporte técnico...">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Criar Chat</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+window.RAG_MODE = true;
+</script>
+<script src="{{ url_for('static', filename='js/rag_agent.js') }}"></script>
+{% endblock %}
