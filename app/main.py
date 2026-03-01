@@ -36,12 +36,7 @@ def create_app():
             pass
         return {"status": "unhealthy"}, 503
 
-    # -------- MODELS COUNT (para dashboard) --------
-    @app.get("/api/models-count")
-    def models_count():
-        red = require_login()
-        if red:
-            return red
+    def get_models_list():
         # Busca modelos disponíveis do backend
         models: List[str] = []
         try:
@@ -54,10 +49,8 @@ def create_app():
                 
                 if not models:
                     print("Backend retornou lista de modelos vazia")
-                    return {"count": 0}
             else:
                 print(f"Erro ao buscar modelos: HTTP {mr.status_code} - {mr.text}")
-                raise Exception(f"HTTP {mr.status_code} - {mr.text}")                
                 
         except requests.exceptions.Timeout:
             print("Timeout ao buscar modelos do backend")
@@ -70,7 +63,25 @@ def create_app():
         if not models:
             print("Usando modelo fallback")
             models = ["llama3.2:3b"]  # Modelo padrão mais comum no Ollama
+        return models
+
+    # -------- MODELS COUNT (para dashboard) --------
+    @app.get("/api/models-count")
+    def models_count():
+        red = require_login()
+        if red:
+            return red
+        models = get_models_list()
         return {"count": len(models)}
+
+    # -------- MODELS LIST (para tooltip) --------
+    @app.get("/api/models")
+    def api_models_list():
+        red = require_login()
+        if red:
+            return red
+        models = get_models_list()
+        return jsonify({"models": models})
                 
 
     # -------- AUTH PAGES --------

@@ -10,7 +10,7 @@
             </div>
             <span class="h5 fw-bold mb-0">MLX AI</span>
         </div>
-        
+
         <ul class="sidebar-nav list-unstyled px-3">
             <li class="mb-1">
                 <a href="{{ url_for('dashboard') }}" class="nav-link active">
@@ -37,10 +37,11 @@
                 </a>
             </li>
         </ul>
-        
+
         <div class="px-3 mt-4">
             <div class="d-flex align-items-center gap-3 py-3 border-top border-secondary">
-                <div class="sidebar-brand-icon" style="width: 40px; height: 40px; font-size: 0.9rem; background: linear-gradient(135deg, #60a5fa, #3b82f6);">
+                <div class="sidebar-brand-icon"
+                    style="width: 40px; height: 40px; font-size: 0.9rem; background: linear-gradient(135deg, #60a5fa, #3b82f6);">
                     {{ email[0]|upper if email else 'U' }}
                 </div>
                 <div>
@@ -50,7 +51,7 @@
             </div>
         </div>
     </nav>
-    
+
     <!-- Main Content -->
     <main class="main-content flex-grow-1">
         <div class="container-fluid">
@@ -58,7 +59,7 @@
                 <h1 class="h3 fw-bold">Dashboard</h1>
                 <p class="text-muted">Bem-vindo! Aqui está sua visão geral.</p>
             </div>
-            
+
             <!-- Stats Cards -->
             <div class="row g-4 mb-4">
                 <div class="col-md-4">
@@ -74,7 +75,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-md-4">
                     <div class="card stat-card border-0">
                         <div class="card-body">
@@ -90,12 +91,13 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-md-4">
                     <div class="card stat-card border-0">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start">
-                                <div>
+                                <div id="models-card" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                    data-bs-html="true" title="Carregando modelos...">
                                     <div class="text-muted small fw-semibold">MODELOS DISPONÍVEIS</div>
                                     <div class="h2 fw-bold text-warning mt-1" id="models-count">-</div>
                                 </div>
@@ -105,7 +107,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Recent Chats -->
             <h2 class="h5 fw-bold mb-3 mt-4">Seus Chats</h2>
             {% if chats %}
@@ -124,7 +126,8 @@
                                 <a href="{{ url_for('chat_page', chat_id=chat.id) }}" class="btn btn-primary">
                                     <i class="bi bi-chat-dots me-1"></i>Continuar
                                 </a>
-                                <a href="{{ url_for('chat_history_page', chat_id=chat.id) }}" class="btn btn-outline-secondary">
+                                <a href="{{ url_for('chat_history_page', chat_id=chat.id) }}"
+                                    class="btn btn-outline-secondary">
                                     <i class="bi bi-eye me-1"></i>Ver Histórico
                                 </a>
                             </div>
@@ -143,7 +146,8 @@
                     </div>
                     <h4 class="fw-bold mb-2">Nenhum chat encontrado</h4>
                     <p class="text-muted mb-4">Crie um novo chat para começar</p>
-                    <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#newChatModal" style="background: var(--primary-gradient);">
+                    <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#newChatModal"
+                        style="background: var(--primary-gradient);">
                         <i class="bi bi-plus-circle me-2"></i>Novo Chat
                     </button>
                 </div>
@@ -178,42 +182,67 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Check API status
-    async function checkApiStatus() {
-        try {
-            const response = await fetch('/health');
-            const data = await response.json();
-            
-            const badge = document.getElementById('api-status-badge');
-            if (data.status === 'healthy') {
-                badge.innerHTML = '<i class="fas fa-circle text-success"></i> Online';
-                badge.className = 'h2 fw-bold text-success mt-1';
-            } else {
-                badge.innerHTML = '<i class="fas fa-circle text-danger"></i> Offline';
-                badge.className = 'h2 fw-bold text-danger mt-1';
+    document.addEventListener('DOMContentLoaded', function () {
+        // Check API status
+        async function checkApiStatus() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+
+                const badge = document.getElementById('api-status-badge');
+                if (data.status === 'healthy') {
+                    badge.innerHTML = '<i class="fas fa-circle text-success"></i> Online';
+                    badge.className = 'h2 fw-bold text-success mt-1';
+                } else {
+                    badge.innerHTML = '<i class="fas fa-circle text-danger"></i> Offline';
+                    badge.className = 'h2 fw-bold text-danger mt-1';
+                }
+            } catch (error) {
+                document.getElementById('api-status-badge').innerHTML = '<i class="fas fa-circle text-danger"></i> Offline';
             }
-        } catch (error) {
-            document.getElementById('api-status-badge').innerHTML = '<i class="fas fa-circle text-danger"></i> Offline';
         }
-    }
-    
-    // Get models count
-    async function getModelsCount() {
-        try {
-            const response = await fetch('/api/models-count');
-            const data = await response.json();
-            document.getElementById('models-count').textContent = data.count;
-        } catch (error) {
-            console.error('Erro ao buscar modelos:', error);
+
+        // Initialize tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Get models count and list
+        async function getModelsInfo() {
+            try {
+                const countResponse = await fetch('/api/models-count');
+                const countData = await countResponse.json();
+                document.getElementById('models-count').textContent = countData.count;
+
+                const listResponse = await fetch('/api/models');
+                const listData = await listResponse.json();
+
+                const modelsCard = document.getElementById('models-card');
+                if (listData.models && listData.models.length > 0) {
+                    let tooltipContent = '<div class="text-start"><strong>Modelos:</strong><ul class="mb-0 ps-3">';
+                    listData.models.forEach(model => {
+                        tooltipContent += `<li>${model}</li>`;
+                    });
+                    tooltipContent += '</ul></div>';
+
+                    // Update tooltip content
+                    const tooltipObj = bootstrap.Tooltip.getInstance(modelsCard);
+                    modelsCard.setAttribute('data-bs-original-title', tooltipContent);
+                    if (tooltipObj) {
+                        tooltipObj._fixTitle();
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao buscar modelos:', error);
+            }
         }
-    }
-    
-    checkApiStatus();
-    getModelsCount();
-    
-    // Auto-check every 30 seconds
-    setInterval(checkApiStatus, 30000);
-});
+
+        checkApiStatus();
+        getModelsInfo();
+
+        // Auto-check every 30 seconds
+        setInterval(checkApiStatus, 30000);
+    });
 </script>
 {% endblock %}
