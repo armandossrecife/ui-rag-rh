@@ -1,0 +1,84 @@
+<nav class="sidebar" id="sidebar">
+    <div
+        class="sidebar-header d-flex align-items-center justify-content-between px-3 py-3 border-bottom border-secondary border-opacity-25">
+        <div class="sidebar-brand d-flex align-items-center gap-2 overflow-hidden">
+            <div class="sidebar-brand-icon flex-shrink-0">
+                <i class="fas fa-robot"></i>
+            </div>
+            <span class="h5 fw-bold mb-0 sidebar-text">My AI</span>
+        </div>
+        <button class="btn btn-link text-white p-0" id="sidebarToggle">
+            <i class="bi bi-list fs-4"></i>
+        </button>
+    </div>
+
+    <ul class="sidebar-nav list-unstyled px-3 mt-3">
+        <li class="mb-1">
+            <a href="{{ url_for('dashboard') }}"
+                class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" data-bs-toggle="tooltip"
+                data-bs-placement="right" title="Dashboard">
+                <i class="bi bi-speedometer2"></i>
+                <span class="ms-2 sidebar-text">Dashboard</span>
+            </a>
+        </li>
+        <li class="mb-1">
+            <a href="{{ url_for('rag_agent_page') }}"
+                class="nav-link {% if request.endpoint == 'rag_agent_page' %}active{% endif %}" data-bs-toggle="tooltip"
+                data-bs-placement="right" title="Agente RH">
+                <i class="bi bi-person-badge"></i>
+                <span class="ms-2 sidebar-text">Agente RH</span>
+            </a>
+        </li>
+        <li class="mb-1">
+            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#newChatModal" data-bs-toggle="tooltip"
+                data-bs-placement="right" title="Novo Chat">
+                <i class="bi bi-chat-dots"></i>
+                <span class="ms-2 sidebar-text">Novo Chat</span>
+            </a>
+        </li>
+
+        {% set current_chat_id = chat_id or (chat.id if chat else None) %}
+        {% if current_chat_id %}
+        <li class="mb-1 mt-3 pt-3 border-top border-secondary border-opacity-25 sidebar-text-header">
+            <small class="text-uppercase fw-bold opacity-50 sidebar-text" style="font-size: 0.7rem;">Chat Atual</small>
+        </li>
+        <li class="mb-1">
+            <a href="{{ url_for('chat_page', chat_id=current_chat_id) }}"
+                class="nav-link {% if request.endpoint == 'chat_page' %}active{% endif %}" data-bs-toggle="tooltip"
+                data-bs-placement="right" title="Chat Atual">
+                <i class="bi bi-chat-left-dots"></i>
+                <span class="ms-2 sidebar-text">Conversa</span>
+            </a>
+        </li>
+        <li class="mb-1">
+            <a href="{{ url_for('chat_history_page', chat_id=current_chat_id) }}"
+                class="nav-link {% if request.endpoint == 'chat_history_page' %}active{% endif %}"
+                data-bs-toggle="tooltip" data-bs-placement="right" title="Histórico">
+                <i class="bi bi-file-earmark-text"></i>
+                <span class="ms-2 sidebar-text">Histórico</span>
+            </a>
+        </li>
+        {% endif %}
+
+        <li class="mb-1 mt-auto pt-3 border-top border-secondary border-opacity-25">
+            <a href="{{ url_for('logout') }}" class="nav-link" data-bs-toggle="tooltip" data-bs-placement="right"
+                title="Sair">
+                <i class="bi bi-box-arrow-right"></i>
+                <span class="ms-2 sidebar-text">Sair</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="px-3 mt-auto mb-3">
+        <div class="d-flex align-items-center gap-3 py-3 border-top border-secondary border-opacity-25 overflow-hidden">
+            <div class="sidebar-brand-icon flex-shrink-0"
+                style="width: 40px; height: 40px; font-size: 0.9rem; background: linear-gradient(135deg, #60a5fa, #3b82f6);">
+                {{ email[0]|upper if email else 'U' }}
+            </div>
+            <div class="sidebar-text">
+                <div class="fw-bold text-truncate" style="max-width: 150px;">{{ email }}</div>
+                <div class="text-muted small">Usuário</div>
+            </div>
+        </div>
+    </div>
+</nav>

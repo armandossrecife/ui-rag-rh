@@ -1,56 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Histórico do Chat - MLX OpenAI Like{% endblock %}
+{% block title %}Histórico do Chat - MyAI OpenAI Like{% endblock %}
 {% block content %}
 <div class="d-flex">
     <!-- Sidebar -->
-    <nav class="sidebar">
-        <div class="sidebar-brand d-flex align-items-center gap-2">
-            <div class="sidebar-brand-icon">
-                <i class="fas fa-robot"></i>
-            </div>
-            <span class="h5 fw-bold mb-0">MLX AI</span>
-        </div>
-        
-        <ul class="sidebar-nav list-unstyled px-3">
-            <li class="mb-1">
-                <a href="{{ url_for('dashboard') }}" class="nav-link">
-                    <i class="bi bi-speedometer2"></i>
-                    <span class="ms-2">Dashboard</span>
-                </a>
-            </li>
-            <li class="mb-1">
-                <a href="{{ url_for('chat_page', chat_id=chat.id) }}" class="nav-link">
-                    <i class="bi bi-chat-dots"></i>
-                    <span class="ms-2">Voltar para Chat</span>
-                </a>
-            </li>
-            <li class="mb-1">
-                <a href="{{ url_for('chat_history_page', chat_id=chat.id) }}" class="nav-link active">
-                    <i class="bi bi-file-earmark-text"></i>
-                    <span class="ms-2">Histórico</span>
-                </a>
-            </li>
-            <li class="mb-1 mt-3">
-                <a href="{{ url_for('logout') }}" class="nav-link">
-                    <i class="bi bi-box-arrow-right"></i>
-                    <span class="ms-2">Sair</span>
-                </a>
-            </li>
-        </ul>
-        
-        <div class="px-3 mt-4">
-            <div class="d-flex align-items-center gap-3 py-3 border-top border-secondary">
-                <div class="sidebar-brand-icon" style="width: 40px; height: 40px; font-size: 0.9rem; background: linear-gradient(135deg, #60a5fa, #3b82f6);">
-                    {{ email[0]|upper if email else 'U' }}
-                </div>
-                <div>
-                    <div class="fw-bold">{{ email }}</div>
-                    <div class="text-muted small">Usuário</div>
-                </div>
-            </div>
-        </div>
-    </nav>
-    
+    {% include 'partials/_sidebar.html' %}
+
     <!-- Main Content -->
     <main class="main-content flex-grow-1">
         <div class="container-fluid">
@@ -60,7 +14,7 @@
                 </h1>
                 <p class="text-muted">Visualização completa das mensagens</p>
             </div>
-            
+
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white">
                     <div class="d-flex justify-content-between align-items-center">
@@ -75,7 +29,7 @@
                         </span>
                     </div>
                 </div>
-                
+
                 <div class="card-body p-0">
                     <div class="chat-body" id="chat-body" style="height: calc(100vh - 300px);">
                         {% for m in messages %}
@@ -96,7 +50,7 @@
                         {% endfor %}
                     </div>
                 </div>
-                
+
                 <div class="card-footer bg-white">
                     <div class="d-flex justify-content-between align-items-center">
                         <small class="text-muted">
@@ -118,9 +72,9 @@
 </div>
 
 <script>
-(function () {
-    const el = document.getElementById('chat-body');
-    if (el) el.scrollTop = el.scrollHeight;
-})();
+    (function () {
+        const el = document.getElementById('chat-body');
+        if (el) el.scrollTop = el.scrollHeight;
+    })();
 </script>
 {% endblock %}

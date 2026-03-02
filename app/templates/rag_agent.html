@@ -4,51 +4,7 @@
 {% block content %}
 <div class="d-flex">
     <!-- Sidebar -->
-    <nav class="sidebar">
-        <div class="sidebar-brand d-flex align-items-center gap-2">
-            <div class="sidebar-brand-icon">
-                <i class="fas fa-robot"></i>
-            </div>
-            <span class="h5 fw-bold mb-0">MLX AI</span>
-        </div>
-        <ul class="sidebar-nav list-unstyled px-3">
-            <li class="mb-1">
-                <a href="{{ url_for('dashboard') }}" class="nav-link">
-                    <i class="bi bi-speedometer2"></i>
-                    <span class="ms-2">Dashboard</span>
-                </a>
-            </li>
-            <li class="mb-1">
-                <a href="{{ url_for('rag_agent_page') }}" class="nav-link active">
-                    <i class="bi bi-person-badge"></i>
-                    <span class="ms-2">Agente RH</span>
-                </a>
-            </li>
-            <li class="mb-1">
-                <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#newChatModal">
-                    <i class="bi bi-chat-dots"></i>
-                    <span class="ms-2">Novo Chat</span>
-                </a>
-            </li>
-            <li class="mb-1 mt-3">
-                <a href="{{ url_for('logout') }}" class="nav-link">
-                    <i class="bi bi-box-arrow-right"></i>
-                    <span class="ms-2">Sair</span>
-                </a>
-            </li>
-        </ul>
-        <div class="px-3 mt-4">
-            <div class="d-flex align-items-center gap-3 py-3 border-top border-secondary">
-                <div class="sidebar-brand-icon" style="width: 40px; height: 40px; font-size: 0.9rem; background: linear-gradient(135deg, #60a5fa, #3b82f6);">
-                    {{ email[0]|upper if email else 'U' }}
-                </div>
-                <div>
-                    <div class="fw-bold">{{ email }}</div>
-                    <div class="text-muted small">Usuário</div>
-                </div>
-            </div>
-        </div>
-    </nav>
+    {% include 'partials/_sidebar.html' %}
 
     <!-- Main Content -->
     <main class="main-content flex-grow-1">
@@ -57,7 +13,8 @@
                 <h1 class="h3 fw-bold">
                     <i class="bi bi-person-badge me-2"></i>Agente de RH
                 </h1>
-                <p class="text-muted">Faça perguntas sobre políticas internas da empresa (férias, home office, código de conduta)</p>
+                <p class="text-muted">Faça perguntas sobre políticas internas da empresa (férias, home office, código de
+                    conduta)</p>
             </div>
 
             <!-- RAG Status Card -->
@@ -156,10 +113,11 @@
 
                     <!-- Input Area -->
                     <div class="input-group">
-                        <textarea class="form-control input-field" id="prompt-input" 
-                                  placeholder="Ex: Quais são os requisitos para solicitar férias?" 
-                                  rows="2" style="resize: none;"></textarea>
-                        <button class="btn btn-primary" id="send-btn" type="button" style="background: var(--primary-gradient);">
+                        <textarea class="form-control input-field" id="prompt-input"
+                            placeholder="Ex: Quais são os requisitos para solicitar férias?" rows="2"
+                            style="resize: none;"></textarea>
+                        <button class="btn btn-primary" id="send-btn" type="button"
+                            style="background: var(--primary-gradient);">
                             <i class="bi bi-send-fill"></i>
                         </button>
                     </div>
@@ -215,7 +173,7 @@
 </div>
 
 <script>
-window.RAG_MODE = true;
+    window.RAG_MODE = true;
 </script>
 <script src="{{ url_for('static', filename='js/rag_agent.js') }}"></script>
 {% endblock %}
