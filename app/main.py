@@ -99,7 +99,12 @@ def create_app():
     def register():
         email = request.form.get("email", "").strip()
         password = request.form.get("password", "").strip()
+        confirm_password = request.form.get("confirm_password", "").strip()
         
+        if password != confirm_password:
+            flash("As senhas não coincidem.", "danger")
+            return redirect(url_for("register_page"))
+
         r = requests.post(
             f"{BACKEND_URL}/auth/register", 
             json={"email": email, "password": password}, 
