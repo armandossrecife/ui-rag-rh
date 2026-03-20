@@ -30,24 +30,24 @@ Desenvolver uma **interface web frontend** em Flask que consuma a API REST do **
 │                         ARQUITETURA FRONTEND + BACKEND                      │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│  ┌──────────────┐     ┌──────────────────┐     ┌──────────────────────┐   │
-│  │   Usuário    │────▶│   Flask Frontend │────▶│   FastAPI Backend    │   │
-│  │  (Browser)   │◀────│   (Port 5001)    │◀────│   (Port 8000)        │   │
-│  └──────────────┘     └────────┬─────────┘     └──────────┬───────────┘   │
-│                                │                          │               │
-│                   ┌────────────┴────────────┐            │               │
-│                   ▼                         ▼            ▼               │
-│          ┌─────────────────┐   ┌─────────────────┐  ┌───────────┐       │
-│          │   Session Flask │   │   Templates     │  │  Ollama   │       │
-│          │   (JWT Token)   │   │   (HTML/CSS/JS) │  │  (LLM)    │       │
-│          └─────────────────┘   └─────────────────┘  └───────────┘       │
-│                                                        │                 │
-│                                           ┌────────────┴────────────┐  │
-│                                           ▼                         ▼  │
-│                                  ┌─────────────────┐   ┌─────────────────┐│
-│                                  │   ChromaDB      │   │   SQLite DB     ││
-│                                  │   (Embeddings)  │   │   (Users/Chats) ││
-│                                  └─────────────────┘   └─────────────────┘│
+│  ┌──────────────┐     ┌──────────────────┐     ┌──────────────────────┐     │
+│  │   Usuário    │────▶│   Flask Frontend │────▶│   FastAPI Backend    │     │
+│  │  (Browser)   │◀────│   (Port 5001)    │◀────│   (Port 8000)        │     │
+│  └──────────────┘     └────────┬─────────┘     └──────────┬───────────┘     │
+│                                │                          │                 │
+│                   ┌────────────┴────────────┐             │                 │
+│                   ▼                         ▼             ▼                 │
+│          ┌─────────────────┐   ┌─────────────────┐  ┌───────────┐           │
+│          │   Session Flask │   │   Templates     │  │  Ollama   │           │
+│          │   (JWT Token)   │   │   (HTML/CSS/JS) │  │  (LLM)    │           │
+│          └─────────────────┘   └─────────────────┘  └───────────┘           │
+│                                                        │                    │
+│                                           ┌────────────┴────────────┐       │
+│                                           ▼                         ▼       │
+│                                  ┌─────────────────┐   ┌─────────────────┐  │
+│                                  │   ChromaDB      │   │   SQLite DB     │  │
+│                                  │   (Embeddings)  │   │   (Users/Chats) │  │
+│                                  └─────────────────┘   └─────────────────┘  │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -59,29 +59,29 @@ Desenvolver uma **interface web frontend** em Flask que consuma a API REST do **
 │                      FLUXO DE CONSULTA AGENTE RH                            │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│  1. Usuário digita pergunta no frontend Flask                              │
+│  1. Usuário digita pergunta no frontend Flask                               │
 │         │                                                                   │
 │         ▼                                                                   │
-│  2. JavaScript captura input e envia para /api/rag/query                   │
+│  2. JavaScript captura input e envia para /api/rag/query                    │
 │         │                                                                   │
 │         ▼                                                                   │
-│  3. Flask proxy adiciona token JWT e encaminha para Backend                │
+│  3. Flask proxy adiciona token JWT e encaminha para Backend                 │
 │         │                                                                   │
 │         ▼                                                                   │
-│  4. FastAPI valida token e chama RAGService.query()                        │
+│  4. FastAPI valida token e chama RAGService.query()                         │
 │         │                                                                   │
-│         ├──▶ 4.1 Gera embedding da pergunta (Ollama)                       │
-│         ├──▶ 4.2 Busca documentos similares (ChromaDB)                     │
-│         ├──▶ 4.3 Reranking semântico (LLM)                                 │
-│         └──▶ 4.4 Gera resposta com contexto (LLM)                          │
+│         ├──▶ 4.1 Gera embedding da pergunta (Ollama)                        │
+│         ├──▶ 4.2 Busca documentos similares (ChromaDB)                      │
+│         ├──▶ 4.3 Reranking semântico (LLM)                                  │
+│         └──▶ 4.4 Gera resposta com contexto (LLM)                           │
 │                                                                             │
-│  5. Backend retorna resposta + fontes                                      │
+│  5. Backend retorna resposta + fontes                                       │
 │         │                                                                   │
 │         ▼                                                                   │
-│  6. Flask retorna JSON para frontend                                       │
+│  6. Flask retorna JSON para frontend                                        │
 │         │                                                                   │
 │         ▼                                                                   │
-│  7. JavaScript renderiza resposta + painel de fontes                       │
+│  7. JavaScript renderiza resposta + painel de fontes                        │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
